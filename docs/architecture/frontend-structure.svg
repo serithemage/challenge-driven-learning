@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" font-family="'Segoe UI',system-ui,sans-serif">
+  <defs>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="108%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.1"/>
+    </filter>
+    <linearGradient id="headerGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e40af"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="520" rx="12" fill="#f8fafc"/>
+
+  <!-- Title -->
+  <rect x="0" y="0" width="800" height="50" rx="12" fill="url(#headerGrad)"/>
+  <rect x="0" y="12" width="800" height="38" fill="url(#headerGrad)"/>
+  <text x="400" y="32" text-anchor="middle" fill="white" font-size="16" font-weight="bold">Frontend Architecture (Next.js App Router)</text>
+
+  <!-- Layout Layer -->
+  <rect x="30" y="70" width="740" height="430" rx="10" fill="white" stroke="#e2e8f0" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="50" y="95" fill="#334155" font-size="12" font-weight="bold">RootLayout (layout.tsx)</text>
+  <text x="215" y="95" fill="#94a3b8" font-size="10">Header + Main + Footer</text>
+
+  <!-- Components -->
+  <rect x="50" y="110" width="150" height="40" rx="6" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <text x="125" y="135" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="bold">Header.tsx</text>
+
+  <rect x="220" y="110" width="150" height="40" rx="6" fill="#dbeafe" stroke="#93c5fd" stroke-width="1"/>
+  <text x="295" y="135" text-anchor="middle" fill="#1d4ed8" font-size="11" font-weight="bold">Footer.tsx</text>
+
+  <!-- Pages -->
+  <text x="50" y="180" fill="#334155" font-size="12" font-weight="bold">Pages (App Router)</text>
+
+  <!-- Public Pages -->
+  <rect x="50" y="195" width="340" height="130" rx="8" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+  <text x="70" y="217" fill="#16a34a" font-size="11" font-weight="bold">Public Pages</text>
+
+  <rect x="70" y="228" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="140" y="250" text-anchor="middle" fill="#374151" font-size="10">/  (Landing)</text>
+
+  <rect x="230" y="228" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="300" y="250" text-anchor="middle" fill="#374151" font-size="10">/login</text>
+
+  <rect x="70" y="275" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="140" y="297" text-anchor="middle" fill="#374151" font-size="10">/signup</text>
+
+  <rect x="230" y="275" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="300" y="297" text-anchor="middle" fill="#374151" font-size="10">/challenges</text>
+
+  <!-- Student Pages -->
+  <rect x="410" y="195" width="340" height="85" rx="8" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+  <text x="430" y="217" fill="#1d4ed8" font-size="11" font-weight="bold">Student Pages</text>
+
+  <rect x="430" y="228" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="500" y="250" text-anchor="middle" fill="#374151" font-size="10">/dashboard</text>
+
+  <rect x="590" y="228" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="660" y="250" text-anchor="middle" fill="#374151" font-size="10">/challenges/[id]</text>
+
+  <!-- Admin Pages -->
+  <rect x="410" y="295" width="340" height="85" rx="8" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+  <text x="430" y="317" fill="#dc2626" font-size="11" font-weight="bold">Admin Pages</text>
+
+  <rect x="430" y="328" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="500" y="350" text-anchor="middle" fill="#374151" font-size="10">/admin/challenges</text>
+
+  <rect x="590" y="328" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="660" y="350" text-anchor="middle" fill="#374151" font-size="10">/admin/students</text>
+
+  <!-- Data Layer -->
+  <rect x="50" y="400" width="700" height="85" rx="8" fill="#fefce8" stroke="#fde047" stroke-width="1"/>
+  <text x="70" y="422" fill="#a16207" font-size="11" font-weight="bold">Data Layer (src/data/mock.ts)</text>
+
+  <rect x="70" y="435" width="105" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="122" y="457" text-anchor="middle" fill="#374151" font-size="9">Challenge</text>
+
+  <rect x="190" y="435" width="105" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="242" y="457" text-anchor="middle" fill="#374151" font-size="9">Student</text>
+
+  <rect x="310" y="435" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="380" y="457" text-anchor="middle" fill="#374151" font-size="9">ChallengeStep</text>
+
+  <rect x="465" y="435" width="140" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="535" y="457" text-anchor="middle" fill="#374151" font-size="9">EvaluationResult</text>
+
+  <rect x="620" y="435" width="115" height="35" rx="6" fill="white" stroke="#d1d5db" stroke-width="1"/>
+  <text x="677" y="457" text-anchor="middle" fill="#374151" font-size="9">Progress</text>
+</svg>
