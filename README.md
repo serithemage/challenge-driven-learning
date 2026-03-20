@@ -12,7 +12,35 @@ CDL은 수강생이 코드를 직접 작성하거나 볼 필요 없이, Claude C
 
 ### System Overview
 
-![System Overview](./docs/architecture/system-overview.svg)
+```mermaid
+graph TB
+    subgraph WEB["Web Platform"]
+        FE["Frontend\nNext.js 16 + React 19"]
+        BE["Backend\nGo REST API"]
+        DB["Database\nPostgreSQL"]
+        FE -->|REST API| BE --> DB
+    end
+
+    subgraph CC["Claude Code Ecosystem"]
+        TM["Teaching Mode\nSkill (.md)"]
+        GH["GitHub Repos"]
+        CICD["CI/CD\nGitHub Actions"]
+    end
+
+    subgraph AWS["AWS Infrastructure"]
+        Compute["ECS / Lambda"]
+        RDS["RDS PostgreSQL"]
+        CDN["CloudFront + S3"]
+    end
+
+    WEB -.-> CC
+    CICD -.->|webhook| WEB
+    WEB --- AWS
+
+    style WEB fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px
+    style CC fill:#faf5ff,stroke:#c4b5fd,stroke-width:2px
+    style AWS fill:#fef2f2,stroke:#fca5a5,stroke-width:2px
+```
 
 ### Tech Stack
 
@@ -26,15 +54,66 @@ CDL은 수강생이 코드를 직접 작성하거나 볼 필요 없이, Claude C
 
 ### Data Model
 
-![Data Model](./docs/architecture/data-model.svg)
+```mermaid
+erDiagram
+    Student ||--o{ StudentChallengeProgress : "수행"
+    Challenge ||--o{ StudentChallengeProgress : "대상"
+    Challenge ||--|{ ChallengeStep : "포함 (1:5)"
+    StudentChallengeProgress ||--o| EvaluationResult : "평가"
+
+    Student {
+        string id PK
+        string name
+        string email UK
+        enum role "student | admin"
+    }
+    Challenge {
+        string id PK
+        string title
+        string[] tech_stack
+        enum difficulty
+        string repo_url
+    }
+    ChallengeStep {
+        int id PK
+        string name
+        int order "1-5"
+    }
+    StudentChallengeProgress {
+        string student_id FK
+        string challenge_id FK
+        int current_step
+        enum status
+    }
+    EvaluationResult {
+        string id PK
+        enum cicd_status
+        int claude_score
+        text claude_feedback
+    }
+```
 
 ### User Flow
 
-![User Flow](./docs/architecture/user-flow.svg)
+```mermaid
+flowchart TD
+    A[Sign Up / Login] --> B[Browse Challenges]
+    B --> C[Start Challenge + Fork Repo]
+    C --> D[Install Teaching Mode Skill]
 
-### Frontend Structure
+    subgraph TM["Claude Code Teaching Mode"]
+        D --> S1["1. Outcome Definition"]
+        S1 --> S2["2. Documentation"]
+        S2 --> S3["3. Test Automation"]
+        S3 --> S4["4. Hooks"]
+        S4 --> S5["5. Skills"]
+    end
 
-![Frontend Structure](./docs/architecture/frontend-structure.svg)
+    S5 --> E["Automated Evaluation\nCI/CD + Claude Code Review"]
+    E --> F[View Results on Dashboard]
+
+    style TM fill:#ede9fe,stroke:#c4b5fd,stroke-width:2px
+```
 
 ---
 
@@ -77,12 +156,7 @@ CDL/
 │   └── package.json
 ├── docs/
 │   ├── PRD.md              # Product Requirements Document
-│   ├── ARCHITECTURE.md     # Architecture Document
-│   └── architecture/       # SVG diagrams
-│       ├── system-overview.svg
-│       ├── user-flow.svg
-│       ├── frontend-structure.svg
-│       └── data-model.svg
+│   └── ARCHITECTURE.md     # Architecture Document (Mermaid diagrams)
 └── README.md
 ```
 

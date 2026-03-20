@@ -9,7 +9,62 @@
 
 CDL(Challenge Driven Learning)은 한빛미디어의 온라인 교육 플랫폼으로, 강의 없이 챌린지만으로 학습하는 새로운 교육 방식을 제공합니다.
 
-![System Overview](./architecture/system-overview.svg)
+```mermaid
+graph TB
+    subgraph WEB["Web Platform"]
+        direction LR
+        subgraph FE["Frontend (Next.js 16)"]
+            Landing["Landing Page"]
+            ChList["Challenge Browser"]
+            ChDetail["Challenge Detail"]
+            Dash["Student Dashboard"]
+            Auth["Login / Signup"]
+            AdminCh["Admin: Challenges"]
+            AdminSt["Admin: Students"]
+        end
+
+        subgraph BE["Backend (Go)"]
+            AuthSvc["Auth Service"]
+            ChAPI["Challenge API"]
+            ProgAPI["Progress API"]
+            EvalAPI["Evaluation API"]
+            AdminAPI["Admin API"]
+        end
+
+        subgraph DB["Database (AWS RDS)"]
+            PG["PostgreSQL"]
+        end
+
+        FE -->|REST API| BE
+        BE --> DB
+    end
+
+    subgraph CC["Claude Code Ecosystem"]
+        direction LR
+        TM["Teaching Mode\nSkill (.md)"]
+        GH["GitHub\nRepositories"]
+        CICD["CI/CD\n(GitHub Actions)"]
+    end
+
+    subgraph AWS["AWS Infrastructure"]
+        direction LR
+        Compute["Compute\nECS / Lambda"]
+        RDS["Database\nRDS PostgreSQL"]
+        CDN["CDN / Hosting\nCloudFront + S3"]
+        Cognito["Auth\nCognito (TBD)"]
+    end
+
+    WEB -.->|webhook| CICD
+    CICD -.->|평가 결과| WEB
+    WEB --- AWS
+
+    style WEB fill:#f8fafc,stroke:#cbd5e1,stroke-width:2px
+    style CC fill:#f8fafc,stroke:#c4b5fd,stroke-width:2px
+    style AWS fill:#fef2f2,stroke:#fca5a5,stroke-width:2px
+    style FE fill:#eff6ff,stroke:#93c5fd
+    style BE fill:#f0fdf4,stroke:#86efac
+    style DB fill:#fefce8,stroke:#fde047
+```
 
 ### 핵심 설계 원칙
 
@@ -39,7 +94,48 @@ CDL(Challenge Driven Learning)은 한빛미디어의 온라인 교육 플랫폼�
 
 Next.js App Router 기반의 SPA로, 현재 Mock 데이터로 UI 프로토타입이 구현되어 있습니다.
 
-![Frontend Structure](./architecture/frontend-structure.svg)
+```mermaid
+graph TB
+    subgraph Layout["RootLayout (layout.tsx)"]
+        Header["Header.tsx"]
+        Footer["Footer.tsx"]
+
+        subgraph Public["Public Pages"]
+            Home["/  Landing"]
+            Login["/login"]
+            Signup["/signup"]
+            Challenges["/challenges"]
+        end
+
+        subgraph Student["Student Pages"]
+            Dashboard["/dashboard"]
+            ChDetail["/challenges/[id]"]
+        end
+
+        subgraph Admin["Admin Pages"]
+            AdminCh["/admin/challenges"]
+            AdminSt["/admin/students"]
+        end
+
+        subgraph Data["Data Layer (src/data/mock.ts)"]
+            Challenge["Challenge"]
+            StudentModel["Student"]
+            ChallengeStep["ChallengeStep"]
+            EvalResult["EvaluationResult"]
+            Progress["Progress"]
+        end
+    end
+
+    Public --> Data
+    Student --> Data
+    Admin --> Data
+
+    style Layout fill:#f8fafc,stroke:#e2e8f0,stroke-width:2px
+    style Public fill:#f0fdf4,stroke:#86efac
+    style Student fill:#eff6ff,stroke:#93c5fd
+    style Admin fill:#fef2f2,stroke:#fca5a5
+    style Data fill:#fefce8,stroke:#fde047
+```
 
 ### 3.1 디렉토리 구조
 
@@ -93,7 +189,64 @@ frontend/
 
 ## 4. Data Model
 
-![Data Model](./architecture/data-model.svg)
+```mermaid
+erDiagram
+    Student {
+        string id PK
+        string name
+        string email UK
+        string password_hash
+        enum role "student | admin"
+        timestamp joined_at
+    }
+
+    Challenge {
+        string id PK
+        string title
+        text description
+        string[] tech_stack
+        enum difficulty "초급 | 중급 | 고급"
+        string realworld_app
+        string repo_url
+        int enrolled_count
+        int completed_count
+    }
+
+    ChallengeStep {
+        int id PK
+        string challenge_id FK
+        string name
+        text description
+        int order "1-5 고정"
+    }
+
+    StudentChallengeProgress {
+        string student_id FK
+        string challenge_id FK
+        int current_step "1-5"
+        enum status "not_started | in_progress | completed"
+        int score "nullable"
+        enum cicd_result "pass | fail | pending | null"
+        string claude_review "nullable"
+        timestamp started_at
+        timestamp completed_at "nullable"
+    }
+
+    EvaluationResult {
+        string id PK
+        string student_id FK
+        string challenge_id FK
+        enum cicd_status "pass | fail | pending"
+        int claude_score
+        text claude_feedback
+        timestamp evaluated_at
+    }
+
+    Student ||--o{ StudentChallengeProgress : "수행"
+    Challenge ||--o{ StudentChallengeProgress : "대상"
+    Challenge ||--|{ ChallengeStep : "포함 (1:5)"
+    StudentChallengeProgress ||--o| EvaluationResult : "평가"
+```
 
 ### 4.1 Core Entities
 
@@ -148,7 +301,33 @@ frontend/
 
 ## 5. User Flow
 
-![User Flow](./architecture/user-flow.svg)
+```mermaid
+flowchart TD
+    A[Sign Up / Login] --> B[Browse Challenges]
+    B --> C[Select Challenge]
+    C --> D[Fork GitHub Repo]
+    D --> E[Install Teaching Mode Skill]
+
+    subgraph TM["Claude Code Teaching Mode"]
+        E --> S1["Step 1: Outcome Definition"]
+        S1 --> S2["Step 2: Documentation"]
+        S2 --> S3["Step 3: Test Automation"]
+        S3 --> S4["Step 4: Hooks"]
+        S4 --> S5["Step 5: Skills"]
+    end
+
+    S5 --> F["Git Push to GitHub"]
+    F --> G{"Automated Evaluation"}
+    G -->|CI/CD| H["Test / Lint / Build"]
+    G -->|Claude Code| I["Quality Review & Feedback"]
+    H --> J[View Results on Dashboard]
+    I --> J
+
+    style TM fill:#ede9fe,stroke:#c4b5fd,stroke-width:2px
+    style G fill:#fff7ed,stroke:#fdba74,stroke-width:2px
+    style A fill:#1e3a5f,color:#fff
+    style J fill:#f0fdf4,stroke:#86efac,stroke-width:2px
+```
 
 ### 5.1 수강생 플로우
 
@@ -159,8 +338,13 @@ frontend/
 
 ### 5.2 관리자 플로우
 
-```
-로그인 → 챌린지 관리 (CRUD) → 수강생 모니터링 → 평가 결과 대시보드
+```mermaid
+flowchart LR
+    A[Admin Login] --> B[Challenge CRUD]
+    B --> C[Student Monitoring]
+    C --> D[Evaluation Dashboard]
+
+    style A fill:#1e3a5f,color:#fff
 ```
 
 ---
@@ -199,11 +383,15 @@ frontend/
 
 ### 배포 전략
 
-```
-GitHub Push → GitHub Actions → Build & Test → Deploy to AWS
-                                            ↓
-                              Frontend → S3 + CloudFront
-                              Backend  → ECS / Lambda
+```mermaid
+flowchart LR
+    Push["GitHub Push"] --> GA["GitHub Actions"]
+    GA --> BT["Build & Test"]
+    BT --> FE["Frontend → S3 + CloudFront"]
+    BT --> BE["Backend → ECS / Lambda"]
+
+    style Push fill:#f0fdf4,stroke:#86efac
+    style GA fill:#fff7ed,stroke:#fdba74
 ```
 
 ---
